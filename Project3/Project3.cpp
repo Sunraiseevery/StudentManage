@@ -12,6 +12,40 @@
 
 using namespace std;
 
+
+
+
+
+
+
+class Course {
+public:
+    Course(const string& courseId = "", const string& courseName = "",
+        int credit = 0, int hours = 0) :
+        m_courseId(courseId), m_courseName(courseName),
+        m_credit(credit), m_hours(hours) {}
+
+    const string& getCourseId() const { return m_courseId; }
+    const string& getCourseName() const { return m_courseName; }
+    int getCredit() const { return m_credit; }
+    int getHours() const { return m_hours; }
+
+    void setCourseId(const string& courseId) { m_courseId = courseId; }
+    void setCourseName(const string& courseName) { m_courseName = courseName; }
+    void setCredit(int credit) { m_credit = credit; }
+    void setHours(int hours) { m_hours = hours; }
+
+    // 重载输入和输出运算符
+    friend istream& operator>>(istream& in, Course& course);
+    friend ostream& operator<<(ostream& out, const Course& course);
+
+private:
+    string m_courseId; // 课程号
+    string m_courseName; // 课程名称
+    int m_credit; // 学分
+    int m_hours; // 学时
+};
+
 // 定义学生类
 class Student {
 private:
@@ -107,7 +141,29 @@ bool isMatch(const Student& s, const std::string& keyword) {
     }
     return false;  // 匹配失败
 }
+void addStudent(vector<Student>& students) {
+    // 创建空的 Student 对象
+    
+    string id;
+    string name;
+    string className;
+    string gender;
+    cout << "依次输入学生的 ID、姓名、班级和性别\n未知信息可回车跳过，默认为空" << endl;
+    cout << "请输入学生 ID：";
+    getline(cin, id);
+    cout << "请输入学生姓名：";
+    getline(cin, name);
+    cout << "请输入学生所在班级：";
+    getline(cin, className);
+    cout << "请输入学生性别：";
+    getline(cin, gender);
+    Student s(id,name,className,gender);
+    // 将新的学生对象添加到学生信息表中
+    students.push_back(s);
 
+    cout << "成功添加学生：" << endl;
+    s.toString();
+}
 int main() {
     const string sinfoF = "E:/CppbigWork/stuinfo.txt";
     // 读取学生信息表
@@ -122,7 +178,7 @@ int main() {
            command = "";
           vector<Student> students = readStudentInfo(sinfoF);
         while(true){  cout << "学生信息表记录数：" << students.size() << endl;
-          cout << "1,查询\n2，删除\n3，修改\n4,返回上一级" << endl;
+          cout << "1,查询\n2，删除\n3,添加\n4，修改\n5,返回上一级" << endl;
          
           command = _getch();
           if (command == "1") {
@@ -144,6 +200,10 @@ int main() {
                       continue;
               }
           }
+          if(command =="2"){}
+          if (command == "3") { addStudent(students); }
+          if (command == "4") {  }
+          if (command == "5") { writeStudentInfo(sinfoF, students); break; }
          }
           
       }
@@ -155,7 +215,7 @@ int main() {
   
     printAllStudents(students);
     // 重新写入学生信息表
-    writeStudentInfo("E:/CppbigWork/stuinfo.txt", students);
+    writeStudentInfo(sinfoF, students);
 
     return 0;
 }
