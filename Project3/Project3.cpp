@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <conio.h>
+#include <regex>
 
 using namespace std;
 
@@ -95,6 +97,16 @@ void printAllStudents(const vector<Student>& students) {
             << "\t性别：" << student.getGender() << endl;
     }
 }
+bool isMatch(const Student& s, const std::string& keyword) {
+    std::regex reg(keyword, std::regex_constants::icase);  // 实例化一个正则表达式对象
+    if (std::regex_search(s.getId(), reg) ||  // 在学生对象的任何属性中查找关键字
+        std::regex_search(s.getName(), reg) ||
+        std::regex_search(s.getGender(), reg) ||
+        std::regex_search(s.getClassName(), reg)) {
+        return true;  // 匹配成功
+    }
+    return false;  // 匹配失败
+}
 
 int main() {
     const string sinfoF = "E:/CppbigWork/stuinfo.txt";
@@ -105,13 +117,35 @@ int main() {
         string command;
         cout << "欢迎来到学生管理系统" << endl<<"1,学生管理\n2,课程管理\n3,成绩管理"<<endl;
         cout << "输入对应数字进入系统" << endl;
-        command=getchar();
-      if(command == "1") {
+       command=_getch();//第三方库调用，直接读取，不同与getchar（）需要enter
+       if (command == "1") {
+           command = "";
           vector<Student> students = readStudentInfo(sinfoF);
-          cout << "学生信息表记录数：" << students.size() << endl;
-
-          getchar();
-          getchar();
+        while(true){  cout << "学生信息表记录数：" << students.size() << endl;
+          cout << "1,查询\n2，删除\n3，修改\n4,返回上一级" << endl;
+         
+          command = _getch();
+          if (command == "1") {
+              cout << "查询\tA:所有\tB:个别" << endl;
+              command = _getch(); cout << command << endl;
+              if (command == "A" || command=="a") {
+                  printAllStudents(students);
+                  continue;}
+              else if(command == "B"||command=="b") {
+                  cout << "输入相关信息" << endl;
+                      string keyword;
+                      cin >> keyword;
+                      for (const auto& s : students) {
+                          if (isMatch(s, keyword)) {  // 调用 isMatch() 函数对学生对象进行匹配
+                              std::cout << s.getId() << ", " << s.getClassName() << ", " << s.getGender() << ", " << s.getName() << std::endl;
+                          }
+                      }
+                      _getch();
+                      continue;
+              }
+          }
+         }
+          
       }
         
     }
