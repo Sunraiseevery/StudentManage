@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <conio.h>
 #include <regex>
+#include <iomanip>
 
 using namespace std;
 
@@ -16,35 +17,100 @@ using namespace std;
 
 
 
-
-
 class Course {
 public:
-    Course(const string& courseId = "", const string& courseName = "",
-        int credit = 0, int hours = 0) :
-        m_courseId(courseId), m_courseName(courseName),
-        m_credit(credit), m_hours(hours) {}
+    Course(const string& courseId = "", const string& courseName = "", float credit = 0.0f, int hours = 0) :
+        m_courseId(courseId), m_courseName(courseName), m_credit(credit), m_hours(hours) {}
 
     const string& getCourseId() const { return m_courseId; }
     const string& getCourseName() const { return m_courseName; }
-    int getCredit() const { return m_credit; }
+    float getCredit() const { return m_credit; }
     int getHours() const { return m_hours; }
 
-    void setCourseId(const string& courseId) { m_courseId = courseId; }
-    void setCourseName(const string& courseName) { m_courseName = courseName; }
-    void setCredit(int credit) { m_credit = credit; }
-    void setHours(int hours) { m_hours = hours; }
+    bool setCourseId(const string& courseId) {
+        if (courseId.empty() || courseId.length() > 10) {
+            return false;
+        }
+        m_courseId = courseId;
+        return true;
+    }
 
-    // 重载输入和输出运算符
-    friend istream& operator>>(istream& in, Course& course);
-    friend ostream& operator<<(ostream& out, const Course& course);
+    bool setCourseName(const string& courseName) {
+        m_courseName = courseName;
+        return true;
+    }
+
+    bool setCredit(float credit) {
+        if (credit < 0.0f || credit > 10.0f) {
+            return false;
+        }
+        m_credit = credit;
+        return true;
+    }
+
+    bool setHours(int hours) {
+        if (hours <= 0 || hours > 999) {
+            return false;
+        }
+        m_hours = hours;
+        return true;
+    }
 
 private:
-    string m_courseId; // 课程号
-    string m_courseName; // 课程名称
-    int m_credit; // 学分
-    int m_hours; // 学时
+    string m_courseId;
+    string m_courseName;
+    float m_credit;
+    int m_hours;
 };
+
+bool writeToFile(const string& fileName, const vector<Course>& courses) {
+    ofstream outFile(fileName);
+    if (!outFile) {
+        cerr << "无法打开文件 \"" << fileName << "\"!" << endl;
+        return false;
+    }
+
+    for (const auto& course : courses) {
+        outFile << course.getCourseId() << ' ' << course.getCourseName() << ' ' << course.getCredit() << ' ' << course.getHours() << endl;
+    }
+
+    outFile.close();
+    return true;
+}
+
+vector<Course> readFromFile(const string& fileName) {
+    vector<Course> courses;
+    ifstream inFile(fileName);
+
+    if (!inFile) {
+        cerr << "无法打开文件 \"" << fileName << "\"!" << endl;
+        return courses;
+    }
+
+    string courseId;
+    string courseName;
+    float credit;
+    int hours;
+
+    while (inFile >> courseId >> courseName >> credit >> hours) {
+        courses.emplace_back(courseId, courseName, credit, hours);
+    }
+
+    inFile.close();
+    return courses;
+}
+
+void showAllCourses(const vector<Course>& courses) {
+    cout << "所有课程信息如下：" << endl << endl;
+    cout << left << setw(15) << "课程编号" << setw(20) << "课程名称" << setw(10) << "学分" << setw(10) << "学时" << endl;
+    cout << "--------------------------------------------------------" << endl;
+    for (const auto& course : courses) {
+        cout << left << setw(15) << course.getCourseId() << setw(20) << course.getCourseName()
+            << setw(10) << course.getCredit() << setw(10) << course.getHours() << endl;
+    }
+}
+
+
 
 // 定义学生类
 class Student {
@@ -165,6 +231,33 @@ void addStudent(vector<Student>& students) {
     s.toString();
 }
 int main() {
+
+    string courseFileName = "E:/CppbigWork/courseInfo.txt";
+    string sortedCourseFileName = "sortedCourseInfo.txt";
+
+    // 读取课程信息
+    vector<Course> courses = readFromFile(courseFileName);
+
+    courses.emplace_back("I19221101", "高等数学", 9.5f, 64);
+    courses.emplace_back("16522105", "C++程序设计", 1.524f, 56);
+    courses.emplace_back("16522104", "计算系统基础", 3.5f, 3);
+    courses.emplace_back("19221201", "线性代数", 3.556f, 2);
+    courses.emplace_back("16221301", "离散数学", 2.5f, 32);  // 没有提供学分信息，使用默认值 0.0f
+    courses.emplace_back("19221302", "概率论与数理统计");  // 没有提供学分和课时信息，使用默认值 0.0f 和 0
+    courses.emplace_back("16583101", "计算机技能训练");
+    courses.emplace_back("16532112", "数据结构与算法");
+    courses.emplace_back("16232115", "Java程序设计");
+
+    if (writeToFile(courseFileName, courses)) {
+        cout << "课程信息已经成功写入文件 courses.txt。" << endl;
+    }
+    else {
+        cerr << "无法将课程信息写入文件 courses.txt！" << endl;
+    }
+
+    showAllCourses(courses);
+
+    return 0;
     const string sinfoF = "E:/CppbigWork/stuinfo.txt";
     // 读取学生信息表
 
