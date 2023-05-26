@@ -238,15 +238,7 @@ int main() {
     // 读取课程信息
     vector<Course> courses = readFromFile(courseFileName);
 
-    courses.emplace_back("I19221101", "高等数学", 9.5f, 64);
-    courses.emplace_back("16522105", "C++程序设计", 1.524f, 56);
-    courses.emplace_back("16522104", "计算系统基础", 3.5f, 3);
-    courses.emplace_back("19221201", "线性代数", 3.556f, 2);
-    courses.emplace_back("16221301", "离散数学", 2.5f, 32);  // 没有提供学分信息，使用默认值 0.0f
-    courses.emplace_back("19221302", "概率论与数理统计");  // 没有提供学分和课时信息，使用默认值 0.0f 和 0
-    courses.emplace_back("16583101", "计算机技能训练");
-    courses.emplace_back("16532112", "数据结构与算法");
-    courses.emplace_back("16232115", "Java程序设计");
+  /*  _getch();
 
     if (writeToFile(courseFileName, courses)) {
         cout << "课程信息已经成功写入文件 courses.txt。" << endl;
@@ -257,7 +249,7 @@ int main() {
 
     showAllCourses(courses);
 
-    return 0;
+    return 0;*/
     const string sinfoF = "E:/CppbigWork/stuinfo.txt";
     // 读取学生信息表
 
@@ -300,6 +292,129 @@ int main() {
          }
           
       }
+       if (command == "2") {
+           vector<Course> courses = readFromFile(courseFileName);
+           while (true) {
+               cout <<"1. 退出程序" << endl
+                   << "2. 查询所有课程信息" << endl
+                   << "3. 查询单个课程信息" << endl
+                   << "4. 修改课程信息" << endl
+                   << "5. 添加新的课程" << endl
+                   << "6. 删除课程" << endl
+                   << "请输入要执行的操作编号：";
+
+               string command;
+               cin >> command;
+
+               if (command == "1") {
+                   break;
+               }
+               else if (command == "2") {
+                   showAllCourses(courses);
+               }
+               else if (command == "3") {
+                   string courseId;
+                   cout << "请输入要查询的课程编号：";
+                   cin >> courseId;
+
+                   cout << left << setw(15) << "课程编号" << setw(20) << "课程名称" << setw(10) << "学分" << setw(10) << "学时" << endl;
+                   cout << "--------------------------------------------------------" << endl;
+
+                   for (const auto& course : courses) {
+                       if (course.getCourseId().find(courseId) != string::npos) {
+                           cout << left << setw(15) << course.getCourseId() << setw(20) << course.getCourseName() << setw(10) << course.getCredit() << setw(10) << course.getHours() << endl;
+                       }
+                   }
+               }
+               else if (command == "4") {
+                   string courseId;
+                   cout << "请输入要修改的课程编号：";
+                   cin >> courseId;
+
+                   for (auto& course : courses) {
+                       if (course.getCourseId() == courseId) {
+                           string courseName;
+                           float credit;
+                           int hours;
+
+                           cout << "请输入新的课程名称：";
+                           cin >> courseName;
+                           cout << "请输入新的课程学分：";
+                           cin >> credit;
+                           cout << "请输入新的课程学时：";
+                           cin >> hours;
+
+                           course.setCourseName(courseName);
+                           course.setCredit(credit);
+                           course.setHours(hours);
+
+                           if (writeToFile(courseFileName, courses)) {
+                               cout << "课程信息已更新！" << endl;
+                           }
+                           else {
+                               cerr << "无法将课程信息写入文件 " << courseFileName << "！" << endl;
+                           }
+
+                           break;
+                       }
+                   }
+
+                   cout << endl;
+               }
+               else if (command == "5") {
+                   string courseId;
+                   string courseName;
+                   float credit;
+                   int hours;
+
+                   cout << "请输入新课程的编号：";
+                   cin >> courseId;
+                   cout << "请输入新课程的名称：";
+                   cin >> courseName;
+                   cout << "请输入新课程的学分：";
+                   cin >> credit;
+                   cout << "请输入新课程的学时：";
+                   cin >> hours;
+
+                   Course newCourse(courseId, courseName, credit, hours);
+                   courses.push_back(newCourse);
+
+                   if (writeToFile(courseFileName, courses)) {
+                       cout << "新课程已添加！" << endl;
+                   }
+                   else {
+                       cerr << "无法将课程信息写入文件 " << courseFileName << "！" << endl;
+                   }
+
+                   cout << endl;
+               }
+               else if (command == "6") {
+                   string courseId;
+                   cout << "请输入要删除的课程编号：";
+                   cin >> courseId;
+
+                   for (auto it = courses.begin(); it != courses.end(); ++it) {
+                       if (it->getCourseId() == courseId) {
+                           courses.erase(it);
+
+                           if (writeToFile(courseFileName, courses)) {
+                               cout << "课程信息已删除！" << endl;
+                           }
+                           else {
+                               cerr << "无法将课程信息写入文件 " << courseFileName << "！" << endl;
+                           }
+
+                           break;
+                       }
+                   }
+
+                   cout << endl;
+               }
+               else {
+                   cout << "无效的输入！请输入有效的操作编号。" << endl;
+               }
+           }
+       }
         
     }
 
