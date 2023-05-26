@@ -14,6 +14,155 @@
 using namespace std;
 
 
+class Grade {
+public:
+    Grade() : sid(""), cid(""), score(-1), grade("") {}
+    Grade(const string& sid, const string& cid, int score) : sid(sid), cid(cid), score(score), grade("") {
+        setGrade();
+    }
+    Grade(const string& sid, const string& cid, const string& grade) : sid(sid), cid(cid), score(-1), grade(grade) {
+        setScore();
+    }
+
+    string getSid() const { return sid; }
+    string getCid() const { return cid; }
+    int getScore() const { return score; }
+    string getGrade() const { return grade; }
+
+    string toString() const {
+        if (score != -1 && !grade.empty()) {
+            return sid + " " + cid + " " + to_string(score) + " " + grade;
+        }
+        else if (score != -1) {
+            return sid + " " + cid + " " + to_string(score);
+        }
+        else if (!grade.empty()) {
+            return sid + " " + cid + " " + grade;
+        }
+        else {
+            return "";
+        }
+    }
+
+    void setScore(int score) {
+        if (score < 0 || score > 100) {
+            throw runtime_error("无效的成绩！");
+        }
+        this->score = score;
+        setGrade();
+    }
+    void setScore() {
+        if (grade == "E") {
+            score = 50;
+        }
+        else if (grade == "D") {
+            score = 65;
+        }
+        else if (grade == "C") {
+            score = 75;
+        }
+        else if (grade == "B") {
+            score = 85;
+        }
+        else if (grade == "A") {
+            score = 95;
+        }
+        else if (grade == "S") {
+            score = 100;
+        }
+    }
+    void setGrade(const string& grade) {
+        if (grade != "E" && grade != "D" && grade != "C" && grade != "B" && grade != "A" && grade != "S") {
+            throw runtime_error("无效的成绩！");
+        }
+        this->grade = grade;
+    }
+    void setGradeOnly(const string& grade) {
+        if (grade != "E" && grade != "D" && grade != "C" && grade != "B" && grade != "A" && grade != "S") {
+            throw runtime_error("无效的成绩！");
+        }
+        this->grade = grade;
+    }
+
+private:
+    string sid;
+    string cid;
+    int score;
+    string grade;
+
+    void setGrade() {
+        if (score == -1) {
+            return;
+        }
+        if (score < 60) {
+            grade = "E";
+        }
+        else if (score < 70) {
+            grade = "D";
+        }
+        else if (score < 80) {
+            grade = "C";
+        }
+        else if (score < 90) {
+            grade = "B";
+        }
+        else if (score < 100) {
+            grade = "A";
+        }
+        else {
+            grade = "S";
+        }
+    }
+};
+
+
+vector<Grade> readGradesFromFile(const string& fileName) {
+    vector<Grade> grades;
+    ifstream fin(fileName);
+    if (fin) {
+        while (fin) {
+            string line;
+            getline(fin, line);
+            if (line.empty()) {
+                break;
+            }
+            stringstream ss(line);
+            string sid, cid;
+            string score_or_grade;
+            ss >> sid >> cid >> score_or_grade;
+            try {
+                int score = stoi(score_or_grade);
+                Grade newGrade(sid, cid, score);
+                grades.push_back(newGrade);
+            }
+            catch (invalid_argument&) {
+                Grade newGrade(sid, cid, score_or_grade);
+                grades.push_back(newGrade);
+            }
+        }
+    }
+    fin.close();
+    return grades;
+}
+
+bool writeGradesToFile(const string& fileName, const vector<Grade>& grades) {
+    ofstream fout(fileName);
+    if (fout) {
+        for (const auto& grade : grades) {
+            fout << grade.getSid() << " " << grade.getCid() << " ";
+            if (!grade.getGrade().empty()) {
+                fout << grade.getGrade();
+            }
+            else {
+                fout << grade.getScore();
+            }
+            fout << endl;
+        }
+        return true;
+    }
+    fout.close();
+    return false;
+}
 
 
 
@@ -237,7 +386,16 @@ int main() {
 
     // 读取课程信息
     vector<Course> courses = readFromFile(courseFileName);
-
+    courses.emplace_back("I19221101", "高等数学", 9.5f, 64);
+    courses.emplace_back("16522105", "C++程序设计", 1.524f, 56);
+    courses.emplace_back("16522104", "计算系统基础", 3.5f, 3);
+    courses.emplace_back("19221201", "线性代数", 3.556f, 2);
+    courses.emplace_back("16221301", "离散数学", 0.0f, 32);  // 没有提供学分信息，使用默认值 0.0f
+    courses.emplace_back("19221302", "概率论与数理统计", 0.0f, 0);  // 没有提供学分和课时信息，使用默认值 0.0f 和 0
+    courses.emplace_back("16583101", "计算机技能训练", 0.0f, 0);
+    courses.emplace_back("16532112", "数据结构与算法", 0.0f, 0);
+    courses.emplace_back("16232115", "Java程序设计", 0.0f, 0);
+    writeToFile(courseFileName, courses);
   /*  _getch();
 
     if (writeToFile(courseFileName, courses)) {
